@@ -95,24 +95,31 @@ namespace DestractLess
 
         public async Task Start()
         {
+            
             if (State == TimerState.Paused)
                 return;
 
             State = TimerState.Running;
-            
-            while (timer > s.Elapsed)
+            checked
             {
-                s.Start();
-                UpdateTimer(timer - s.Elapsed);
-                if (_awaiter != null)
+                while (timer.Ticks - s.Elapsed.Ticks > 0)
                 {
-                    await _awaiter;
+                    this.label_elapsed.Content = s.Elapsed;
+                    this.label_diff.Content = timer - s.Elapsed;
                     s.Start();
-                    State = TimerState.Running;
-                    _awaiter = null; 
+                    UpdateTimer(timer - s.Elapsed);
+                    if (_awaiter != null)
+                    {
+                        await _awaiter;
+                        s.Start();
+                        State = TimerState.Running;
+                        _awaiter = null;
+                    }
+                    await Task.Delay(100);
                 }
-                await Task.Delay(100);
             }
+            s.Stop();
+            s.Reset();
 
             if (this.WindowState == WindowState.Minimized)
             {
@@ -120,18 +127,15 @@ namespace DestractLess
                 this.WindowState = WindowState.Normal;
             }
 
-
             this.Show();
             this.Activate();
             this.Focus();
             this.Topmost = true;
             this.Topmost = false;
-
-
+            UpdateTimer(timer);
             State = TimerState.Finished;
             button.Content = "Continue";
-            s.Stop();
-            s.Reset();
+
         }
 
 
@@ -139,7 +143,6 @@ namespace DestractLess
 
         private void button_Click(object sender, RoutedEventArgs e)
         {
-
             switch (State)
             {
                 case TimerState.Create:
@@ -148,6 +151,7 @@ namespace DestractLess
                         int.TryParse(this.Seconds.Text, out int seconds))
                     {
                         this.timer = new TimeSpan(hours, minutes, seconds);
+                        UpdateTimer(timer-s.Elapsed);
                         this.button.Content = "Start";
                         State = TimerState.Ready;
                     }
@@ -176,7 +180,7 @@ namespace DestractLess
 
         private void UpdateTimer(TimeSpan t)
         {
-            this.label_t.Content = (t - s.Elapsed).ToString(@"hh\:mm\:ss\.fff");
+            this.label_t.Content = t.ToString(@"hh\:mm\:ss\.fff");
         }
 
         private void Stop()

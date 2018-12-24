@@ -9,14 +9,18 @@
     <Grid>
         <Grid.ColumnDefinitions>
         </Grid.ColumnDefinitions>
+
         <Label x:Name="label_t" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="" FontSize="76" Margin="27,23,33,196" Grid.ColumnSpan="8" BorderBrush="{DynamicResource {x:Static SystemColors.InfoBrushKey}}" FontStretch="UltraExpanded" RenderTransformOrigin="0.5,0.5"/>
         <WrapPanel Margin="200,250,200,0" Orientation="Horizontal" 
                    VerticalAlignment="Top">
             <TextBox x:Name="Hours" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  VerticalContentAlignment="Center" Height="75" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="127" BorderBrush="{DynamicResource {x:Static SystemColors.InfoBrushKey}}" FontStretch="UltraExpanded" FontSize="56" RenderTransformOrigin="0.5,0.5" TextChanged="Timer_TextChanged"/>
             <TextBox x:Name="Minutes" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  VerticalContentAlignment="Center"  TextWrapping="Wrap"  Text="1" Width="128" BorderBrush="{DynamicResource {x:Static SystemColors.InfoBrushKey}}" FontStretch="UltraExpanded" FontSize="56" RenderTransformOrigin="0.757,0.565" Height="75" TextChanged="Timer_TextChanged"/>
             <TextBox x:Name="Seconds" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  VerticalContentAlignment="Center"  Height="75" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="127" BorderBrush="{DynamicResource {x:Static SystemColors.InfoBrushKey}}" FontStretch="UltraExpanded" FontSize="56" RenderTransformOrigin="0.5,0.5" TextChanged="Timer_TextChanged"/>
+            
         </WrapPanel>
         <Button x:Name="button" Content="Button" Margin="200,325,200,10" Click="button_Click" RenderTransformOrigin="0.5,0.5" BorderBrush="{DynamicResource {x:Static SystemColors.InfoBrushKey}}" FontStretch="UltraExpanded" FontSize="22"/>
+        <Label x:Name="label_elapsed" Content="Label" HorizontalAlignment="Left" Margin="67,265,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label_diff" Content="Label" HorizontalAlignment="Left" Margin="67,346,0,0" VerticalAlignment="Top"/>
 
 
     </Grid>
