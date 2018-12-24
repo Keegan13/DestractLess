@@ -16,11 +16,12 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace DestractLess
 {
 
-    public enum ButtonState
+    public enum TimerState
     {
         Create,
         Paused,
@@ -28,6 +29,7 @@ namespace DestractLess
         Running,
         Finished
     }
+
 
 
     /// <summary>
@@ -38,8 +40,12 @@ namespace DestractLess
     public partial class MainWindow : Window
     {
         private NotifyIcon trayIcon;
-        private ButtonState btnState = ButtonState.Create;
+        private TimerState State = TimerState.Create;
+        protected TimeSpan timer;
         private int _previousWindowState = -1;
+        private Stopwatch s;
+        private Task _awaiter;
+
 
 
         public MainWindow()
@@ -50,45 +56,16 @@ namespace DestractLess
 
             trayIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(DoubleClick);
             this.StateChanged += new EventHandler(StateChangedHandler);
+            this.s = new Stopwatch();
 
-            btnState = ButtonState.Create;
-            this.button.Content = "Set timer";
+            this.Minutes.Text = "10";
+            this.timer = TimeSpan.FromMinutes(10);
+            this.button.Content = "Start";
+            State = TimerState.Ready;
+            UpdateTimer(timer);
 
         }
 
-        public void TimerCallBack()
-        {
-
-            if (this.WindowState == WindowState.Minimized)
-            {
-                this._previousWindowState = (int)WindowState;
-                this.WindowState = WindowState.Normal;
-            }
-
-            this.Show();
-            this.Activate();
-            this.Focus();
-            this.Topmost = true;
-            this.Topmost = false;
-
-
-            btnState = ButtonState.Finished;
-            button.Content = "Continue";
-            label_t.Reset();
-
-
-            //switch (this.label_t.State)
-            //{
-            //    case TimerState.Finished:
-
-
-            //        break;
-            //    case TimerState.Faulted:break;
-
-            //    default: break;
-
-            //}
-        }
 
         private void StateChangedHandler(object sender, EventArgs e)
         {
@@ -110,30 +87,77 @@ namespace DestractLess
 
         private void DoubleClick(object sender, System.Windows.Forms.MouseEventArgs e)
         {
+
             this.WindowState = WindowState.Normal;
             //this.ShowInTaskbar = true;
             //this.Show();
         }
 
+        public async Task Start()
+        {
+            if (State == TimerState.Paused)
+                return;
+
+            State = TimerState.Running;
+            
+            while (timer > s.Elapsed)
+            {
+                s.Start();
+                UpdateTimer(timer - s.Elapsed);
+                if (_awaiter != null)
+                {
+                    await _awaiter;
+                    s.Start();
+                    State = TimerState.Running;
+                    _awaiter = null; 
+                }
+                await Task.Delay(100);
+            }
+
+            if (this.WindowState == WindowState.Minimized)
+            {
+                this._previousWindowState = (int)WindowState;
+                this.WindowState = WindowState.Normal;
+            }
+
+
+            this.Show();
+            this.Activate();
+            this.Focus();
+            this.Topmost = true;
+            this.Topmost = false;
+
+
+            State = TimerState.Finished;
+            button.Content = "Continue";
+            s.Stop();
+            s.Reset();
+        }
+
+
+
+
         private void button_Click(object sender, RoutedEventArgs e)
         {
-            switch (btnState)
+
+            switch (State)
             {
-                case ButtonState.Create:
+                case TimerState.Create:
                     if (int.TryParse(this.Hours.Text, out int hours) &&
                         int.TryParse(this.Minutes.Text, out int minutes) &&
                         int.TryParse(this.Seconds.Text, out int seconds))
                     {
-                        this.label_t.SetTimer(hours, minutes, seconds);
+                        this.timer = new TimeSpan(hours, minutes, seconds);
                         this.button.Content = "Start";
-                        btnState = ButtonState.Ready;
+                        State = TimerState.Ready;
                     }
                     break;
-                case ButtonState.Ready:
-                case ButtonState.Paused:
-                case ButtonState.Finished:
-                    this.label_t.Start(this.TimerCallBack);
-                    this.btnState = ButtonState.Running;
+                case TimerState.Paused:
+                case TimerState.Ready:              
+                case TimerState.Finished:
+                    _awaiter?.Start();
+                    Start();
+                    this.State = TimerState.Running;
                     this.button.Content = "Pause";
                     if (_previousWindowState > 0)
                     {
@@ -141,13 +165,24 @@ namespace DestractLess
                         _previousWindowState = -1;
                     }
                     break;
-                case ButtonState.Running:
-                    this.label_t.Stop();
-                    this.btnState = ButtonState.Paused;
+                case TimerState.Running:
+                    Stop();
+                    this.State = TimerState.Paused;
                     this.button.Content = "Continue";
                     break;
                 default: break;
             }
+        }
+
+        private void UpdateTimer(TimeSpan t)
+        {
+            this.label_t.Content = (t - s.Elapsed).ToString(@"hh\:mm\:ss\.fff");
+        }
+
+        private void Stop()
+        {
+            s.Stop();
+            this._awaiter = new Task(() => { });
         }
 
         private void Timer_TextChanged(object sender, TextChangedEventArgs e)
@@ -163,9 +198,11 @@ namespace DestractLess
                 {
                     textbox.Text = "0";
                 }
-
+                s.Stop();
+                s.Reset();
                 this.button.Content = "Restart";
-                this.btnState = ButtonState.Create;
+                this.State = TimerState.Create;
+                
 
             }
         }

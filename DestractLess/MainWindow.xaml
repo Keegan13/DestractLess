@@ -9,7 +9,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
         </Grid.ColumnDefinitions>
-        <local:LabelTimer x:Name="label_t" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="" FontSize="76" Margin="27,23,33,196" Grid.ColumnSpan="8" BorderBrush="{DynamicResource {x:Static SystemColors.InfoBrushKey}}" FontStretch="UltraExpanded" RenderTransformOrigin="0.5,0.5"/>
+        <Label x:Name="label_t" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Content="" FontSize="76" Margin="27,23,33,196" Grid.ColumnSpan="8" BorderBrush="{DynamicResource {x:Static SystemColors.InfoBrushKey}}" FontStretch="UltraExpanded" RenderTransformOrigin="0.5,0.5"/>
         <WrapPanel Margin="200,250,200,0" Orientation="Horizontal" 
                    VerticalAlignment="Top">
             <TextBox x:Name="Hours" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  VerticalContentAlignment="Center" Height="75" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="127" BorderBrush="{DynamicResource {x:Static SystemColors.InfoBrushKey}}" FontStretch="UltraExpanded" FontSize="56" RenderTransformOrigin="0.5,0.5" TextChanged="Timer_TextChanged"/>
